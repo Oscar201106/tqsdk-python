@@ -380,9 +380,9 @@ class TqSim(object):
             if not _is_in_trading_time(quote, self._current_datetime, self._local_time_record):
                 self._del_order(order, "下单失败, 不在可交易时间段内")
                 return
-
-        ask_price = quote["ask_price1"]
-        bid_price = quote["bid_price1"]
+        # 在指数交易时，使用 tick 进行回测时，backtest 发的 quote 没有买一卖一价；或者在实时行情中，指数的 quote 也没有买一卖一价
+        ask_price = (quote["last_price"] + quote["price_tick"]) if quote["ask_price1"] != quote["ask_price1"] else quote["ask_price1"]
+        bid_price = (quote["last_price"] - quote["price_tick"]) if quote["bid_price1"] != quote["bid_price1"] else quote["bid_price1"]
         if "limit_price" not in order:
             price = ask_price if order["direction"] == "BUY" else bid_price
             if price != price:
